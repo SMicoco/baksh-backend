@@ -1,0 +1,20 @@
+{
+  "name": "baksh-consulting",
+  "version": "2.0.0",
+  "description": "Baksh Consulting Limited backend: API, CV uploads, admin panel, CSV and Excel export",
+  "main": "server.js",
+  "engines": { "node": "22.x" },
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "express": "^4.21.0",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "resend": "^4.0.0"
+  }
+}

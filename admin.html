@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · Baksh Consulting Limited</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--bg:#181E43;--bg2:#252B58;--bg3:#0F1330;--ink:#fff;--ink-soft:#ECF1FF;--grey:#CAD0DD;--grey-faint:#6470A0;--cyan:#5DDFEE;--violet:#B7A0F8;--pink:#F189C5;--green:#34D399;--amber:#FBBF24;--line:rgba(255,255,255,.14)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
+body{background:radial-gradient(ellipse 80% 60% at center,#252B58 0%,#181E43 55%,#0F1330 100%) fixed;min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+
+#three-bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35}
+.aurora{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.aurora .blob{position:absolute;border-radius:50%;filter:blur(160px);opacity:.22;animation:float 22s ease-in-out infinite alternate;mix-blend-mode:screen}
+@media (max-width: 768px){
+  #three-bg{opacity:.20}
+  .aurora .blob{filter:blur(80px);opacity:.15}
+  .login-card .logo-wrap canvas{width:84px !important;height:84px !important}
+  .login-card{padding:32px 24px 28px}
+}
+.aurora .b1{width:600px;height:600px;background:var(--violet);top:-200px;left:-200px}
+.aurora .b2{width:700px;height:700px;background:var(--cyan);top:30%;right:-250px}
+.aurora .b3{width:500px;height:500px;background:var(--pink);bottom:-200px;left:40%}
+@keyframes float{0%{transform:translate(0,0) scale(1)}100%{transform:translate(100px,-80px) scale(1.2)}}
+#login-view, #dash-view{position:relative;z-index:3}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+#login-view{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.login-card{width:100%;max-width:440px;background:linear-gradient(135deg,rgba(93,223,238,.05),rgba(183,160,248,.05));border:1px solid var(--line);border-radius:24px;padding:42px 40px 40px;backdrop-filter:blur(20px);text-align:center}
+.login-card .logo-wrap{display:flex;justify-content:center;margin-bottom:18px}
+.login-card .logo-wrap canvas{width:120px !important;height:120px !important;display:block;filter:drop-shadow(0 0 24px rgba(93,223,238,.55))}
+.login-card .brand-line{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;letter-spacing:1.4px;text-transform:uppercase;color:var(--cyan);margin-bottom:24px;text-align:center}
+.login-card h1{font-family:'Space Grotesk',sans-serif;font-size:1.75rem;font-weight:600;text-align:center;margin-bottom:8px;letter-spacing:-.02em}
+.login-card .lead{text-align:center;color:var(--grey);font-size:13.5px;margin-bottom:28px}
+.login-card .field{margin-bottom:16px}
+.login-card label{display:block;font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--grey);margin-bottom:8px}
+.login-card input{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--line);color:var(--ink);padding:13px 15px;border-radius:11px;font-family:inherit;font-size:14.5px;transition:border-color .2s,box-shadow .2s}
+.login-card input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 3px rgba(93,223,238,.15)}
+.login-card button[type=submit]{width:100%;padding:14px;margin-top:10px;background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff;border-radius:100px;font-weight:600;font-size:14px;letter-spacing:.3px;transition:transform .25s,box-shadow .3s}
+.login-card button[type=submit]:hover{transform:scale(1.02);box-shadow:0 10px 32px rgba(93,223,238,.35)}
+.login-card .err{color:#F189C5;font-size:12.5px;text-align:center;min-height:18px;margin-top:14px}
+
+#dash-view{display:none;min-height:100vh}
+#dash-view.show{display:block}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(15,19,48,.92);backdrop-filter:blur(20px);z-index:50}
+.topbar .brand{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14.5px}
+.topbar .brand svg{width:24px;height:24px;filter:drop-shadow(0 0 8px rgba(93,223,238,.6))}
+.topbar .brand span{line-height:1.15;font-size:13px}
+.topbar .actions{display:flex;gap:8px;align-items:center}
+.topbar .actions .btn{padding:9px 16px;border-radius:100px;font-size:13px;font-weight:500;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--ink-soft);transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.topbar .actions .btn:hover{background:rgba(255,255,255,.1);color:#fff}
+.topbar .actions .btn-danger{background:rgba(241,137,197,.08);border-color:rgba(241,137,197,.3);color:var(--pink)}
+
+main{padding:32px;max-width:1500px;margin:0 auto}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:28px}
+.stat{background:linear-gradient(135deg,rgba(93,223,238,.04),rgba(183,160,248,.04));border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.stat .label{font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--grey);margin-bottom:6px}
+.stat .value{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:600;color:#fff}
+.stat.cyan .value{color:var(--cyan)}
+.stat.violet .value{color:var(--violet)}
+.stat.pink .value{color:var(--pink)}
+.stat.green .value{color:var(--green)}
+
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:18px}
+.controls .filters{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+.controls .filters button{padding:8px 14px;border-radius:100px;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--ink-soft);font-size:12.5px;font-weight:500;transition:all .2s}
+.controls .filters button:hover{background:rgba(93,223,238,.08);border-color:rgba(93,223,238,.4)}
+.controls .filters button.active{background:linear-gradient(135deg,var(--cyan),var(--violet));border-color:transparent;color:#fff;font-weight:600}
+.controls .search{position:relative}
+.controls .search input{background:rgba(0,0,0,.4);border:1px solid var(--line);color:#fff;padding:9px 14px 9px 36px;border-radius:100px;font-family:inherit;font-size:13px;width:220px}
+.controls .search input:focus{outline:none;border-color:var(--cyan)}
+.controls .search::before{content:'\\2315';position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--grey);font-size:15px}
+.controls .export{display:flex;gap:6px}
+.controls .export a{padding:8px 14px;border-radius:100px;background:rgba(93,223,238,.08);border:1px solid rgba(93,223,238,.3);color:var(--cyan);font-size:12.5px;font-weight:500;transition:all .2s;text-decoration:none}
+.controls .export a:hover{background:var(--cyan);color:var(--bg);border-color:transparent}
+
+.table-wrap{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead{background:rgba(0,0,0,.25)}
+th{text-align:left;padding:14px 18px;font-weight:600;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--grey)}
+td{padding:14px 18px;border-top:1px solid var(--line);vertical-align:middle}
+tbody tr{transition:background .15s;cursor:pointer}
+tbody tr:hover{background:rgba(93,223,238,.04)}
+.type-pill{display:inline-flex;padding:3px 10px;border-radius:100px;font-size:10.5px;font-weight:600;letter-spacing:.8px;text-transform:uppercase}
+.type-pill.contact{background:rgba(93,223,238,.12);color:var(--cyan)}
+.type-pill.vacancy{background:rgba(183,160,248,.14);color:var(--violet)}
+.type-pill.volunteer{background:rgba(241,137,197,.14);color:var(--pink)}
+.type-pill.student{background:rgba(52,211,153,.14);color:var(--green)}
+.status-pill{display:inline-flex;padding:3px 10px;border-radius:100px;font-size:10.5px;font-weight:600;letter-spacing:.8px;text-transform:uppercase}
+.status-pill.new{background:rgba(251,191,36,.14);color:var(--amber)}
+.status-pill.replied{background:rgba(52,211,153,.14);color:var(--green)}
+.status-pill.archived{background:rgba(202,208,221,.08);color:var(--grey)}
+.cv-btn{padding:5px 10px;border-radius:8px;background:rgba(93,223,238,.1);border:1px solid rgba(93,223,238,.3);color:var(--cyan);font-size:11px;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.cv-btn:hover{background:var(--cyan);color:var(--bg);border-color:transparent}
+.empty{padding:60px 20px;text-align:center;color:var(--grey-faint)}
+
+#drawer-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:90;opacity:0;visibility:hidden;transition:all .25s}
+#drawer-bg.open{opacity:1;visibility:visible}
+#drawer{position:fixed;top:0;right:0;height:100vh;width:520px;max-width:100vw;background:linear-gradient(180deg,#1F2553,#161B40);border-left:1px solid var(--line);z-index:100;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;padding:28px 32px 60px}
+#drawer.open{transform:translateX(0)}
+#drawer .close{position:absolute;top:18px;right:18px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.06);font-size:18px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center}
+#drawer .close:hover{background:rgba(255,255,255,.14);color:#fff}
+#drawer h2{font-family:'Space Grotesk',sans-serif;font-size:1.35rem;font-weight:600;margin:6px 0 4px;padding-right:50px;line-height:1.2}
+#drawer .sub-line{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:24px;font-size:12.5px;color:var(--grey)}
+#drawer .field-block{margin-bottom:20px}
+#drawer .field-block label{display:block;font-size:10.5px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--grey-faint);margin-bottom:4px}
+#drawer .field-block .val{font-size:14px;color:var(--ink-soft);word-break:break-word;line-height:1.55}
+#drawer .field-block .val.empty{color:var(--grey-faint);font-style:italic}
+#drawer .field-block .val.pre{white-space:pre-wrap}
+#drawer textarea{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--line);color:#fff;padding:11px 13px;border-radius:10px;font-family:inherit;font-size:13.5px;min-height:80px;resize:vertical}
+#drawer select{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--line);color:#fff;padding:11px 13px;border-radius:10px;font-family:inherit;font-size:13.5px}
+#drawer .row-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+#drawer .row-actions a,#drawer .row-actions button{padding:10px 16px;border-radius:100px;font-size:13px;font-weight:500;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+#drawer .row-actions .primary{background:linear-gradient(135deg,var(--cyan),var(--violet));color:#fff}
+#drawer .row-actions .primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(93,223,238,.35)}
+#drawer .row-actions .ghost{background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--ink-soft)}
+#drawer .row-actions .ghost:hover{background:rgba(255,255,255,.1);color:#fff}
+#drawer .row-actions .danger{background:rgba(241,137,197,.08);border:1px solid rgba(241,137,197,.3);color:var(--pink)}
+#drawer .row-actions .danger:hover{background:rgba(241,137,197,.18)}
+.save-bar{font-size:12px;color:var(--green);min-height:16px;margin-top:8px}
+
+@media(max-width:760px){
+  main{padding:18px}
+  .topbar{padding:14px 18px}
+  th,td{padding:10px 12px;font-size:12.5px}
+  td.hide-sm,th.hide-sm{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+<canvas id="three-bg"></canvas>
+
+<div id="login-view">
+  <form class="login-card" id="login-form">
+    <div class="logo-wrap"><canvas class="nav-logo-3d" width="240" height="240"></canvas></div>
+    <div class="brand-line">Baksh Consulting Limited</div>
+    <h1>Admin panel</h1>
+    <p class="lead">Sign in to view enquiries, applications, and CV uploads.</p>
+    <div class="field"><label>Username</label><input name="username" type="text" required autocomplete="username" placeholder="admin"></div>
+    <div class="field"><label>Password</label><input name="password" type="password" required autocomplete="current-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"></div>
+    <button type="submit">Sign in &rarr;</button>
+    <div class="err" id="login-err"></div>
+  </form>
+</div>
+
+<div id="dash-view">
+  <div class="topbar">
+    <div class="brand">
+      <canvas class="nav-logo-3d" width="56" height="56" style="width:28px;height:28px;display:block;filter:drop-shadow(0 0 10px rgba(93,223,238,0.55));"></canvas>
+      <span>Baksh Admin<br><span style="color:var(--grey);font-size:11px;font-weight:400">Enquiries &amp; applications</span></span>
+    </div>
+    <div class="actions">
+      <a class="btn" href="https://bakshconsultinglimited.com" target="_blank">View site &uarr;&rarr;</a>
+      <button class="btn btn-danger" id="logout-btn">Sign out</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="stats" id="stats"></div>
+
+    <div class="controls">
+      <div class="filters" id="filters">
+        <button class="active" data-filter="all">All</button>
+        <button data-filter="contact">Contact</button>
+        <button data-filter="career">Careers</button>
+        <button data-filter="ai">AI</button>
+        <button data-filter="crypto">Crypto</button>
+        <button data-filter="robotics">Robotics</button>
+        
+      </div>
+      <div class="search"><input id="search" type="text" placeholder="Search name or email&hellip;"></div>
+      <div class="export">
+        <a id="export-csv" href="#">Export CSV</a>
+        <a id="export-xlsx" href="#">Export Excel</a>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Form</th>
+            <th>Name</th>
+            <th class="hide-sm">Email</th>
+            <th>Status</th>
+            <th class="hide-sm">CV</th>
+          </tr>
+        </thead>
+        <tbody id="rows"><tr><td colspan="6" class="empty">Loading&hellip;</td></tr></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div id="drawer-bg"></div>
+<aside id="drawer" role="dialog" aria-modal="true">
+  <button class="close" id="drawer-close" aria-label="Close">&times;</button>
+  <div id="drawer-body"></div>
+</aside>
+
+<script>
+// Lighten WebGL load on mobile (keeps animations, prevents freeze)
+const IS_MOBILE = window.matchMedia('(max-width: 768px)').matches || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+const PX_RATIO  = IS_MOBILE ? 1 : Math.min(window.devicePixelRatio, 2);
+const MOBILE_FPS_THROTTLE = IS_MOBILE ? 2 : 1; // render every Nth frame on mobile
+
+// Mini rotating icosahedron logos (login card + topbar)
+(function(){
+  if (typeof THREE === 'undefined') return;
+  document.querySelectorAll('.nav-logo-3d').forEach(canvas => {
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !IS_MOBILE });
+    renderer.setPixelRatio(PX_RATIO);
+    renderer.setSize(canvas.width, canvas.height, false);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    camera.position.z = 3;
+    const geo = new THREE.IcosahedronGeometry(1, 0);
+    const wire = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x5DDFEE, transparent: true, opacity: 0.95 }));
+    scene.add(wire);
+    const core = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
+    scene.add(core);
+    const vHalo = new THREE.Points(geo.clone(), new THREE.PointsMaterial({ size: 0.22, color: 0x5DDFEE, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }));
+    const vCore = new THREE.Points(geo.clone(), new THREE.PointsMaterial({ size: 0.09, color: 0xFFFFFF, depthWrite: false }));
+    scene.add(vHalo); scene.add(vCore);
+    const start = performance.now();
+    let frame = 0;
+    (function loop(){
+      const t = (performance.now() - start) * 0.001;
+      wire.rotation.x = t * 0.45;
+      wire.rotation.y = t * 0.65;
+      vHalo.rotation.copy(wire.rotation);
+      vCore.rotation.copy(wire.rotation);
+      if (frame++ % MOBILE_FPS_THROTTLE === 0) renderer.render(scene, camera);
+      requestAnimationFrame(loop);
+    })();
+  });
+})();
+
+// Background big rotating icosahedron
+(function(){
+  if (typeof THREE === 'undefined') return;
+  const canvas = document.getElementById('three-bg');
+  if (!canvas) return;
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !IS_MOBILE });
+  renderer.setPixelRatio(PX_RATIO);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+  camera.position.z = 5;
+  const geo = new THREE.IcosahedronGeometry(1.2, 1);
+  const wire = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x5DDFEE, transparent: true, opacity: 0.35 }));
+  scene.add(wire);
+  function resize(){
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+  }
+  resize(); window.addEventListener('resize', resize);
+  const start = performance.now();
+  let bgFrame = 0;
+  (function loop(){
+    const t = (performance.now() - start) * 0.001;
+    wire.rotation.x = t * 0.12;
+    wire.rotation.y = t * 0.18;
+    if (bgFrame++ % MOBILE_FPS_THROTTLE === 0) renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  })();
+})();
+
+const API = ''; // same-origin: served by the backend itself
+let token = localStorage.getItem('Baksh_admin_token') || '';
+let cache = [];
+let currentFilter = 'all';
+let currentSearch = '';
+
+const loginView = document.getElementById('login-view');
+const dashView  = document.getElementById('dash-view');
+
+function showDash(){ loginView.style.display = 'none'; dashView.classList.add('show'); loadStats(); loadSubmissions(); updateExportLinks(); }
+function showLogin(){ dashView.classList.remove('show'); loginView.style.display = 'flex'; }
+
+if (token) showDash();
+
+document.getElementById('login-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target).entries());
+  const err = document.getElementById('login-err');
+  err.textContent = '';
+  try {
+    const r = await fetch(API + '/api/admin/login', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(data)
+    });
+    const j = await r.json();
+    if (r.ok && j.token) {
+      token = j.token;
+      localStorage.setItem('Baksh_admin_token', token);
+      showDash();
+    } else {
+      err.textContent = j.error || 'Login failed';
+    }
+  } catch (e) { err.textContent = 'Network error. Is the backend live?'; }
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+  localStorage.removeItem('Baksh_admin_token');
+  token = '';
+  showLogin();
+});
+
+async function authFetch(path) {
+  const r = await fetch(API + path, { headers: { 'Authorization': 'Bearer ' + token }});
+  if (r.status === 401) { showLogin(); throw new Error('auth'); }
+  return r;
+}
+
+async function loadStats(){
+  try {
+    const r = await authFetch('/api/admin/stats');
+    const s = await r.json();
+    const cards = [
+      {label:'Total enquiries',  value: s.total||0,       cls:''},
+      {label:'New',              value: s.new_count||0,   cls:'cyan'},
+      {label:'Replied',          value: s.replied||0,     cls:'green'},
+      {label:'Contact form',     value: s.contacts||0,    cls:''},
+      {label:'Career applications',    value: s.careers||0,   cls:'violet'},
+      {label:'AI enquiries', value: s.ai||0, cls:'pink'},
+      {label:'Crypto enquiries', value: s.crypto||0, cls:'cyan'},
+      {label:'Robotics enquiries', value: s.robotics||0, cls:'green'},
+    ];
+    document.getElementById('stats').innerHTML = cards.map(c =>
+      '<div class="stat ' + c.cls + '"><div class="label">' + c.label + '</div><div class="value">' + c.value + '</div></div>'
+    ).join('');
+  } catch(e){}
+}
+
+async function loadSubmissions(){
+  try {
+    const r = await authFetch('/api/admin/submissions' + (currentFilter !== 'all' ? '?type=' + currentFilter : ''));
+    const j = await r.json();
+    cache = j.submissions || [];
+    renderRows();
+  } catch(e){}
+}
+
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function renderRows(){
+  const tbody = document.getElementById('rows');
+  const q = currentSearch.toLowerCase();
+  const rows = cache.filter(r => {
+    if (!q) return true;
+    return (r.name||'').toLowerCase().includes(q) || (r.email||'').toLowerCase().includes(q);
+  });
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">No submissions yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => {
+    const dt = new Date(r.created_at.replace(' ','T') + 'Z').toLocaleString('en-GB', { dateStyle:'medium', timeStyle:'short' });
+    const cvLink = r.cv_filename
+      ? '<a class="cv-btn" href="' + API + '/api/admin/cv/' + r.id + '?token=' + encodeURIComponent(token) + '" onclick="event.stopPropagation()" target="_blank">&darr; CV</a>'
+      : '<span style="color:var(--grey-faint);font-size:11px">&mdash;</span>';
+    return '<tr data-id="' + r.id + '">' +
+      '<td style="color:var(--grey);font-size:12.5px;white-space:nowrap">' + dt + '</td>' +
+      '<td><span class="type-pill ' + r.form_type + '">' + r.form_type + '</span></td>' +
+      '<td style="font-weight:500">' + esc(r.name) + '</td>' +
+      '<td class="hide-sm"><a href="mailto:' + esc(r.email) + '" onclick="event.stopPropagation()" style="color:var(--cyan)">' + esc(r.email) + '</a></td>' +
+      '<td><span class="status-pill ' + r.status + '">' + r.status + '</span></td>' +
+      '<td class="hide-sm">' + cvLink + '</td>' +
+    '</tr>';
+  }).join('');
+  tbody.querySelectorAll('tr[data-id]').forEach(tr => {
+    tr.addEventListener('click', () => openDrawer(+tr.dataset.id));
+  });
+}
+
+document.querySelectorAll('#filters button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#filters button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    currentFilter = b.dataset.filter;
+    loadSubmissions();
+    updateExportLinks();
+  });
+});
+
+document.getElementById('search').addEventListener('input', e => {
+  currentSearch = e.target.value;
+  renderRows();
+});
+
+function updateExportLinks(){
+  const typeParam = currentFilter !== 'all' ? '&type=' + currentFilter : '';
+  document.getElementById('export-csv').href  = API + '/api/admin/export.csv?token='  + encodeURIComponent(token) + typeParam;
+  document.getElementById('export-xlsx').href = API + '/api/admin/export.xlsx?token=' + encodeURIComponent(token) + typeParam;
+}
+
+const drawer = document.getElementById('drawer');
+const drawerBg = document.getElementById('drawer-bg');
+document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+drawerBg.addEventListener('click', closeDrawer);
+function closeDrawer(){ drawer.classList.remove('open'); drawerBg.classList.remove('open'); }
+
+const FIELD_LABELS = {
+  phone:'Phone', organisation:'Organisation', practice:'Practice', sector:'Sector',
+  role:'Role', right_to_work:'Right to work', languages:'Languages', linkedin:'LinkedIn',
+  experience:'Experience summary', course:'Course of study', institution:'Institution',
+  placement_type:'Placement type', hours_per_week:'Hours per week', role_type:'Role type',
+  availability_days:'Days available', dates:'Dates', message:'Message'
+};
+
+function openDrawer(id){
+  const r = cache.find(x => x.id === id);
+  if (!r) return;
+  const dt = new Date(r.created_at.replace(' ','T') + 'Z').toLocaleString('en-GB', { dateStyle:'full', timeStyle:'short' });
+  const cv = r.cv_filename
+    ? '<a class="primary" target="_blank" href="' + API + '/api/admin/cv/' + r.id + '?token=' + encodeURIComponent(token) + '">&darr; Download CV (' + esc(r.cv_original_name||'') + ')</a>'
+    : '';
+  const fields = Object.entries(FIELD_LABELS).map(function(entry){
+    const k = entry[0], label = entry[1], v = r[k];
+    const cls = v ? ('val' + (k === 'message' || k === 'experience' ? ' pre' : '')) : 'val empty';
+    const html = v ? (k === 'linkedin' ? '<a href="' + esc(v) + '" target="_blank" style="color:var(--cyan)">' + esc(v) + '</a>' : esc(v)) : 'not provided';
+    return '<div class="field-block"><label>' + label + '</label><div class="' + cls + '">' + html + '</div></div>';
+  }).join('');
+  document.getElementById('drawer-body').innerHTML =
+    '<h2>' + esc(r.name) + '</h2>' +
+    '<div class="sub-line">' +
+      '<span class="type-pill ' + r.form_type + '">' + r.form_type + '</span>' +
+      '<span class="status-pill ' + r.status + '">' + r.status + '</span>' +
+      '<span>' + dt + '</span>' +
+    '</div>' +
+    '<div class="field-block"><label>Email</label><div class="val"><a href="mailto:' + esc(r.email) + '?subject=Re: your enquiry · Baksh Consulting Limited" style="color:var(--cyan)">' + esc(r.email) + '</a></div></div>' +
+    fields +
+    '<div class="field-block"><label>Status</label>' +
+      '<select id="d-status">' +
+        '<option value="new"' + (r.status === 'new' ? ' selected' : '') + '>New</option>' +
+        '<option value="replied"' + (r.status === 'replied' ? ' selected' : '') + '>Replied</option>' +
+        '<option value="archived"' + (r.status === 'archived' ? ' selected' : '') + '>Archived</option>' +
+      '</select></div>' +
+    '<div class="field-block"><label>Notes (internal)</label>' +
+      '<textarea id="d-notes" placeholder="Add internal notes here&hellip;">' + esc(r.notes||'') + '</textarea>' +
+      '<div class="save-bar" id="save-bar"></div></div>' +
+    '<div class="row-actions">' +
+      cv +
+      '<a class="primary" href="mailto:' + esc(r.email) + '?subject=Re: your enquiry · Baksh Consulting Limited">&#9993; Reply by email</a>' +
+      '<button class="ghost" id="save-btn">Save changes</button>' +
+      '<button class="danger" id="del-btn">Delete</button>' +
+    '</div>';
+  drawer.dataset.id = id;
+  document.getElementById('save-btn').addEventListener('click', () => saveDrawer(id));
+  document.getElementById('del-btn').addEventListener('click', () => deleteSub(id));
+  drawer.classList.add('open');
+  drawerBg.classList.add('open');
+}
+
+async function saveDrawer(id){
+  const notes  = document.getElementById('d-notes').value;
+  const status = document.getElementById('d-status').value;
+  const bar = document.getElementById('save-bar');
+  bar.textContent = 'Saving…'; bar.style.color = 'var(--grey)';
+  try {
+    const r = await fetch(API + '/api/admin/submissions/' + id, {
+      method: 'PATCH',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes, status })
+    });
+    const j = await r.json();
+    if (r.ok) {
+      bar.textContent = '✓ Saved'; bar.style.color = 'var(--green)';
+      const i = cache.findIndex(x => x.id === id);
+      if (i >= 0) cache[i] = j.submission;
+      renderRows();
+      loadStats();
+    } else { bar.textContent = j.error || 'Save failed'; bar.style.color = 'var(--pink)'; }
+  } catch (e) { bar.textContent = 'Network error'; bar.style.color = 'var(--pink)'; }
+}
+
+async function deleteSub(id){
+  if (!confirm('Delete this submission? Any uploaded CV will also be deleted. This cannot be undone.')) return;
+  try {
+    const r = await fetch(API + '/api/admin/submissions/' + id, {
+      method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (r.ok) {
+      cache = cache.filter(x => x.id !== id);
+      renderRows();
+      loadStats();
+      closeDrawer();
+    }
+  } catch (e) {}
+}
+</script>
+</body>
+</html>
